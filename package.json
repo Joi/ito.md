@@ -1,0 +1,24 @@
+{
+  "name": "ito-md",
+  "version": "1.0.0",
+  "description": "ito.md — agent trust hub",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev content",
+    "deploy": "wrangler pages deploy content --project-name ito-md",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "seed:list": "node scripts/seed list",
+    "seed:deploy": "node scripts/seed deploy"
+  },
+  "author": "Joi Ito",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250327.0",
+    "marked": "^15.0.7",
+    "vitest": "^3.1.1",
+    "wrangler": "^4.14.4",
+    "typescript": "^5.8.2"
+  }
+}
