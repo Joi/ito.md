@@ -1,4 +1,21 @@
 {
   "description": "ito.md seed data — pre-populated by Joi",
-  "people": []
+  "people": [
+    {
+      "id": "p_uxsh6166bhgw",
+      "github": "Joi",
+      "display_name": "Joi Ito",
+      "trust_code": true,
+      "personal_connection": true,
+      "note": "Hub admin"
+    },
+    {
+      "id": "p_gynhxpktcjes",
+      "github": "harperreed",
+      "display_name": "Harper Reed",
+      "trust_code": true,
+      "personal_connection": true,
+      "note": "Long-time friend and collaborator"
+    }
+  ]
 }
