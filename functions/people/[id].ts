@@ -1,7 +1,7 @@
 // functions/people/[id].ts
 // GET /people/:id — person profile page (HTML for browsers, redirects agents to API)
 import { getPersonById, getAgentsByOwner, getToolsByPerson, getFollowsByPerson } from '../../lib/db';
-import { authenticateSession } from '../../lib/auth';
+import { authenticateSession, extractSessionToken } from '../../lib/auth';
 import { wantsMarkdown, wrapInHtml } from '../../worker/index';
 
 interface Env {
@@ -59,6 +59,7 @@ function profileToMarkdown(person: any, agents: any[], tools: any[], follows: an
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const { request, env, params } = context;
+  const url = new URL(request.url);
   const id = params.id as string;
   const person = await getPersonById(env.DB, id);
 
@@ -75,7 +76,19 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   const viewer = await authenticateSession(request, env.DB);
   const isOwner = viewer?.id === person.id;
 
-  const md = profileToMarkdown(person, agents, tools, follows, isOwner);
+  // Show agent session code on welcome page (just after OAuth)
+  const isWelcome = url.searchParams.get('welcome') === '1' && isOwner;
+  const sessionToken = isWelcome ? extractSessionToken(request) : null;
+
+  let md = '';
+
+  if (sessionToken) {
+    md += `> **You're authenticated!** Share this session code with your agent:\n>\n`;
+    md += `> \`${sessionToken}\`\n>\n`;
+    md += `> Your agent will use this to complete your profile on your behalf.\n\n`;
+  }
+
+  md += profileToMarkdown(person, agents, tools, follows, isOwner);
 
   if (wantsMarkdown(request)) {
     return new Response(md, {

@@ -92,7 +92,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   // Set cookie and redirect
   const headers = new Headers();
   headers.set('Set-Cookie', `ito_session=${token}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${30 * 24 * 60 * 60}`);
-  headers.set('Location', `/people/${person!.id}`);
+  headers.set('Location', `/people/${person!.id}?welcome=1`);
 
   return new Response(null, { status: 302, headers });
 };

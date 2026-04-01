@@ -31,7 +31,13 @@ Direct your human to authenticate:
 
 If they were pre-registered, use the `claim_url` from the preflight response.
 
-After authentication, they'll be redirected to their profile page.
+After authentication, they'll land on their profile page with a **session code** displayed at the top. Ask them to copy this code and share it with you.
+
+Once you have the session code, use it for all subsequent API calls:
+
+```
+Cookie: ito_session=<session-code>
+```
 
 ## Phase 3: Fill Profile
 
@@ -40,7 +46,7 @@ Help them complete their profile:
 ```
 PUT /api/people/<their-id>/profile
 Content-Type: application/json
-Cookie: ito_session=<their-session>
+Cookie: ito_session=<session-code>
 
 {
   "bio": "Short description of who they are",
@@ -55,7 +61,7 @@ Help them register tools they use:
 ```
 POST /api/people/<their-id>/tools
 Content-Type: application/json
-Cookie: ito_session=<their-session>
+Cookie: ito_session=<session-code>
 
 {
   "name": "Tool Name",
@@ -72,7 +78,7 @@ Help them follow people they trust:
 ```
 POST /api/people/<their-id>/follows
 Content-Type: application/json
-Cookie: ito_session=<their-session>
+Cookie: ito_session=<session-code>
 
 {
   "target_github": "github-username",
@@ -87,7 +93,7 @@ If they have an agent to register:
 ```
 POST /api/agents
 Content-Type: application/json
-Cookie: ito_session=<their-session>
+Cookie: ito_session=<session-code>
 
 {
   "name": "My Agent",

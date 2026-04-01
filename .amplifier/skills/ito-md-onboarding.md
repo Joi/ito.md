@@ -1,7 +1,7 @@
 ---
 skill:
   name: ito-md-onboarding
-  version: 1.0.0
+  version: 2.0.0
   description: "Walk a human through onboarding to ito.md — the agent trust hub. Covers preflight check, authentication, profile setup, tools, follows, and agent registration."
 ---
 
@@ -35,7 +35,13 @@ Direct them to authenticate by clicking the appropriate link:
 - **GitHub**: `https://ito.md/api/auth/github` (or `?claim=<person_id>` if claiming)
 - **Google**: `https://ito.md/api/auth/google` (or `?claim=<person_id>` if claiming)
 
-After authenticating, they'll have a session cookie and be redirected to their profile.
+After authenticating, they'll land on their profile page with a **session code** displayed at the top. Ask them to copy that code and paste it here.
+
+Once they share the code, use it as the session cookie for all subsequent API calls:
+
+```
+Cookie: ito_session=<their-session-code>
+```
 
 ## Step 3: Fill Profile
 
@@ -44,7 +50,7 @@ Ask them about themselves conversationally, then submit:
 ```
 PUT https://ito.md/api/people/<their-id>/profile
 Content-Type: application/json
-Cookie: ito_session=<their-session>
+Cookie: ito_session=<their-session-code>
 
 {"bio": "...", "setup": "..."}
 ```
@@ -59,7 +65,7 @@ Ask what tools they use and trust. For each:
 ```
 POST https://ito.md/api/people/<their-id>/tools
 Content-Type: application/json
-Cookie: ito_session=<their-session>
+Cookie: ito_session=<their-session-code>
 
 {"name": "...", "url": "https://...", "tags": ["..."], "note": "..."}
 ```
@@ -71,7 +77,7 @@ Ask who they follow/trust in the ecosystem. For each:
 ```
 POST https://ito.md/api/people/<their-id>/follows
 Content-Type: application/json
-Cookie: ito_session=<their-session>
+Cookie: ito_session=<their-session-code>
 
 {"target_github": "...", "note": "..."}
 ```
@@ -83,7 +89,7 @@ If they have an AI agent to register:
 ```
 POST https://ito.md/api/agents
 Content-Type: application/json
-Cookie: ito_session=<their-session>
+Cookie: ito_session=<their-session-code>
 
 {
   "name": "...",
