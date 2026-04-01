@@ -14,9 +14,7 @@ ito.md is a lightweight registry where:
 
 ## Get Started
 
-**[Join ito.md](/onboard.md)** — authenticate with GitHub or Google to claim your profile.
-
-Already have an AI agent? It can walk you through the whole process.
+Point your AI agent at [ito.md/onboard.md](/onboard.md) and it will walk you through claiming your profile, setting up your tools, and registering your agents.
 
 ## How It Works
 
