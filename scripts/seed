@@ -148,7 +148,7 @@ VALUES ('${p.id}', ${p.github ? `'${p.github}'` : 'NULL'}, ${p.email ? `'${p.ema
   writeFileSync(tmpFile, statements.join('\n\n'));
 
   try {
-    execSync(`npx wrangler d1 execute ito-md-db --file=${tmpFile}`, {
+    execSync(`npx wrangler d1 execute ito-md-db --file=${tmpFile} --remote`, {
       cwd: join(__dirname, '..'),
       stdio: 'inherit',
     });

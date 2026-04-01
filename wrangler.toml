@@ -1,5 +1,6 @@
 name = "ito-md"
 compatibility_date = "2025-03-31"
+pages_build_output_dir = "content"
 
 # Pages project — content/ is the static asset directory
 # Worker logic lives in functions/ (Pages Functions)
@@ -9,7 +10,7 @@ compatibility_date = "2025-03-31"
 [[d1_databases]]
 binding = "DB"
 database_name = "ito-md-db"
-database_id = "placeholder-create-with-wrangler"
+database_id = "b9b9f249-a2b4-4ed8-be0b-e0dc9c4cabe3"
 
 # Environment variables (set via wrangler secret)
 # GITHUB_CLIENT_ID
