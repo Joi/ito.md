@@ -1,0 +1,168 @@
+#!/usr/bin/env node
+// scripts/seed — CLI tool for managing seed.json and deploying to D1
+// Usage:
+//   ./scripts/seed add --github <username> --name <name> [--trust-code] [--personal-connection] [--email <email>] [--note <note>]
+//   ./scripts/seed list
+//   ./scripts/seed remove --github <username>
+//   ./scripts/seed deploy
+
+import { readFileSync, writeFileSync } from 'node:fs';
+import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const SEED_PATH = join(__dirname, '..', 'seed.json');
+
+function loadSeed() {
+  try {
+    return JSON.parse(readFileSync(SEED_PATH, 'utf-8'));
+  } catch {
+    return { description: 'ito.md seed data', people: [] };
+  }
+}
+
+function saveSeed(data) {
+  writeFileSync(SEED_PATH, JSON.stringify(data, null, 2) + '\n');
+}
+
+function randomId() {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let result = 'p_';
+  for (let i = 0; i < 12; i++) {
+    result += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return result;
+}
+
+const args = process.argv.slice(2);
+const command = args[0];
+
+function getFlag(name) {
+  const idx = args.indexOf(`--${name}`);
+  return idx !== -1 ? args[idx + 1] : null;
+}
+
+function hasFlag(name) {
+  return args.includes(`--${name}`);
+}
+
+if (command === 'add') {
+  const github = getFlag('github');
+  const email = getFlag('email');
+  const name = getFlag('name');
+  const note = getFlag('note');
+  const trustCode = hasFlag('trust-code');
+  const personalConnection = hasFlag('personal-connection');
+
+  if (!github && !email) {
+    console.error('Error: --github <username> or --email <address> required');
+    process.exit(1);
+  }
+  if (!name) {
+    console.error('Error: --name <display_name> required');
+    process.exit(1);
+  }
+
+  const seed = loadSeed();
+
+  // Check for duplicates
+  if (github && seed.people.find(p => p.github?.toLowerCase() === github.toLowerCase())) {
+    console.error(`Error: ${github} already in seed.json`);
+    process.exit(1);
+  }
+
+  const entry = {
+    id: randomId(),
+    ...(github ? { github } : {}),
+    ...(email ? { email } : {}),
+    display_name: name,
+    trust_code: trustCode,
+    personal_connection: personalConnection,
+    ...(note ? { note } : {}),
+  };
+
+  seed.people.push(entry);
+  saveSeed(seed);
+  console.log(`Added: ${name} (${github || email}) — id: ${entry.id}`);
+  if (trustCode) console.log('  trust_code: yes');
+  if (personalConnection) console.log('  personal_connection: yes');
+
+} else if (command === 'list') {
+  const seed = loadSeed();
+  if (seed.people.length === 0) {
+    console.log('No people in seed.json');
+  } else {
+    console.log(`${seed.people.length} people in seed.json:\n`);
+    for (const p of seed.people) {
+      const flags = [
+        p.trust_code ? 'trust_code' : '',
+        p.personal_connection ? 'personal_connection' : '',
+      ].filter(Boolean).join(' · ');
+      const id = p.github || p.email || '?';
+      console.log(`  ${p.display_name} (${id})${flags ? ' — ' + flags : ''}`);
+    }
+  }
+
+} else if (command === 'remove') {
+  const github = getFlag('github');
+  const email = getFlag('email');
+  if (!github && !email) {
+    console.error('Error: --github <username> or --email <address> required');
+    process.exit(1);
+  }
+  const seed = loadSeed();
+  const before = seed.people.length;
+  seed.people = seed.people.filter(p => {
+    if (github) return p.github?.toLowerCase() !== github.toLowerCase();
+    if (email) return p.email?.toLowerCase() !== email.toLowerCase();
+    return true;
+  });
+  saveSeed(seed);
+  const removed = before - seed.people.length;
+  console.log(`Removed ${removed} person(s)`);
+
+} else if (command === 'deploy') {
+  const seed = loadSeed();
+  if (seed.people.length === 0) {
+    console.log('No people to deploy');
+    process.exit(0);
+  }
+
+  console.log(`Deploying ${seed.people.length} people to D1...\n`);
+
+  const schema = readFileSync(join(__dirname, '..', 'schema', '001-init.sql'), 'utf-8');
+
+  // Build SQL statements
+  const statements = [schema];
+  const now = new Date().toISOString();
+
+  for (const p of seed.people) {
+    const sql = `INSERT OR IGNORE INTO people (id, github_username, google_email, display_name, status, trust_code, personal_connection, trust_note, trust_by, registered_at, updated_at)
+VALUES ('${p.id}', ${p.github ? `'${p.github}'` : 'NULL'}, ${p.email ? `'${p.email}'` : 'NULL'}, '${p.display_name.replace(/'/g, "''")}', 'seeded', ${p.trust_code ? 1 : 0}, ${p.personal_connection ? 1 : 0}, ${p.note ? `'${p.note.replace(/'/g, "''")}'` : 'NULL'}, 'seed-cli', '${now}', '${now}');`;
+    statements.push(sql);
+  }
+
+  // Write to temp file
+  const tmpFile = join(__dirname, '..', '.seed-deploy.sql');
+  writeFileSync(tmpFile, statements.join('\n\n'));
+
+  try {
+    execSync(`npx wrangler d1 execute ito-md-db --file=${tmpFile}`, {
+      cwd: join(__dirname, '..'),
+      stdio: 'inherit',
+    });
+    console.log('\nDeploy complete!');
+  } catch (err) {
+    console.error('Deploy failed. Make sure D1 database is created:');
+    console.error('  npx wrangler d1 create ito-md-db');
+    process.exit(1);
+  }
+
+} else {
+  console.log(`Usage:
+  ./scripts/seed add --github <username> --name <name> [--trust-code] [--personal-connection] [--email <email>] [--note <note>]
+  ./scripts/seed list
+  ./scripts/seed remove --github <username>
+  ./scripts/seed deploy`);
+}
