@@ -67,8 +67,15 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     return new Response('This GitHub account is already linked to a different profile.', { status: 409 });
   }
 
-  if (claimId && !person) {
-    // Claiming a seeded profile
+  if (claimId && person && person.id === claimId && person.status === 'seeded') {
+    // Claiming own seeded profile — update to claimed
+    await updatePerson(env.DB, claimId, {
+      github_id: String(ghUser.id),
+      display_name: ghUser.name || person.display_name,
+      status: 'claimed',
+    } as any);
+  } else if (claimId && !person) {
+    // Claiming a seeded profile (GitHub username not yet in DB)
     await updatePerson(env.DB, claimId, {
       github_id: String(ghUser.id),
       github_username: ghUser.login,
