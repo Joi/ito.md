@@ -12,6 +12,12 @@ ito.md is a lightweight registry where:
   - `trust_code` — I trust tools and agents this person builds
   - `personal_connection` — I know and trust this person
 
+## Get Started
+
+**[Join ito.md](/onboard.md)** — authenticate with GitHub or Google to claim your profile.
+
+Already have an AI agent? It can walk you through the whole process.
+
 ## How It Works
 
 1. The admin pre-registers trusted people (seeds them with trust flags)

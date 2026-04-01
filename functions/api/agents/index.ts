@@ -4,9 +4,22 @@
 import { listAgents, createAgent, getPersonById } from '../../../lib/db';
 import { authenticateSession, jsonError, jsonOk } from '../../../lib/auth';
 import { generateApiKey, hashApiKey } from '../../../lib/crypto';
+import { wantsMarkdown, wrapInHtml } from '../../../worker/index';
 
 interface Env {
   DB: D1Database;
+}
+
+function agentsToMarkdown(agents: any[]): string {
+  let md = '# Agents\n\n';
+  if (agents.length === 0) {
+    md += 'No agents registered yet.\n';
+    return md;
+  }
+  for (const a of agents) {
+    md += `- [${a.name}](/agents/${a.id}) — ${a.description || 'No description'}\n`;
+  }
+  return md;
 }
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
@@ -14,14 +27,19 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   const agents = await listAgents(env.DB);
 
   const accept = request.headers.get('Accept') || '';
-  if (accept.includes('text/markdown') || accept.includes('text/plain')) {
-    let md = '# Agents\n\n';
-    for (const a of agents) {
-      md += `- [${a.name}](/agents/${a.id}) — ${a.description || 'No description'}\n`;
-    }
-    return new Response(md, {
+
+  if (wantsMarkdown(request)) {
+    return new Response(agentsToMarkdown(agents), {
       status: 200,
       headers: { 'Content-Type': 'text/markdown; charset=utf-8' },
+    });
+  }
+
+  if (accept.includes('text/html') || accept.includes('*/*')) {
+    const md = agentsToMarkdown(agents);
+    return new Response(wrapInHtml(md, 'Agents'), {
+      status: 200,
+      headers: { 'Content-Type': 'text/html; charset=utf-8' },
     });
   }
 
