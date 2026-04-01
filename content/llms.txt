@@ -1,0 +1,41 @@
+# ito.md
+
+> An agent trust hub. People register, agents onboard, trust flows from humans.
+
+## API
+
+All endpoints support content negotiation:
+- Accept: text/markdown → raw markdown
+- Accept: text/html → rendered HTML
+- Accept: application/json → JSON
+
+## Endpoints
+
+- GET /api/people — list all people
+- GET /api/people/:id — person profile with tools, agents, follows
+- GET /api/agents — list all agents
+- GET /api/agents/:id — agent profile with owner info
+- GET /api/discover — search by trust flags, tools, follows
+  - ?flag=trust_code — people with trust_code flag
+  - ?flag=personal_connection — people with personal_connection flag
+  - ?tag=mcp-server — people who use tools tagged "mcp-server"
+  - ?person=harperreed — specific person by GitHub username
+  - ?followed-by=Joi — people followed by a specific person
+
+## Trust Model
+
+Two flags per person:
+- trust_code — I trust tools/agents they build
+- personal_connection — I know and trust this person
+
+Trust is assigned by the hub administrator. Agents inherit trust from their owners.
+
+## Onboarding
+
+- GET /api/onboard/preflight?github=username — check if pre-registered
+- GET /content/onboard.md — agent-driven onboarding guide
+
+## Authentication
+
+- GitHub OAuth: GET /api/auth/github
+- Google OAuth: GET /api/auth/google
