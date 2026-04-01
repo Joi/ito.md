@@ -89,10 +89,13 @@ CREATE INDEX IF NOT EXISTS idx_sessions_person ON sessions(person_id);
 
 
 INSERT OR IGNORE INTO people (id, github_username, google_email, display_name, status, trust_code, personal_connection, trust_note, trust_by, registered_at, updated_at)
-VALUES ('p_uxsh6166bhgw', 'Joi', NULL, 'Joi Ito', 'seeded', 1, 1, 'Hub admin', 'seed-cli', '2026-04-01T04:17:17.807Z', '2026-04-01T04:17:17.807Z');
+VALUES ('p_uxsh6166bhgw', 'Joi', NULL, 'Joi Ito', 'seeded', 1, 1, 'Hub admin', 'seed-cli', '2026-04-01T13:13:41.533Z', '2026-04-01T13:13:41.533Z');
 
 INSERT OR IGNORE INTO people (id, github_username, google_email, display_name, status, trust_code, personal_connection, trust_note, trust_by, registered_at, updated_at)
-VALUES ('p_gynhxpktcjes', 'harperreed', NULL, 'Harper Reed', 'seeded', 1, 1, 'Long-time friend and collaborator', 'seed-cli', '2026-04-01T04:17:17.807Z', '2026-04-01T04:17:17.807Z');
+VALUES ('p_gynhxpktcjes', 'harperreed', NULL, 'Harper Reed', 'seeded', 1, 1, 'Long-time friend and collaborator', 'seed-cli', '2026-04-01T13:13:41.533Z', '2026-04-01T13:13:41.533Z');
 
 INSERT OR IGNORE INTO people (id, github_username, google_email, display_name, status, trust_code, personal_connection, trust_note, trust_by, registered_at, updated_at)
-VALUES ('p_5lozgcnvblqu', 'nraford7', NULL, 'Noah Raford', 'seeded', 1, 1, 'Trusted collaborator', 'seed-cli', '2026-04-01T04:17:17.807Z', '2026-04-01T04:17:17.807Z');
+VALUES ('p_5lozgcnvblqu', 'nraford7', NULL, 'Noah Raford', 'seeded', 1, 1, 'Trusted collaborator', 'seed-cli', '2026-04-01T13:13:41.533Z', '2026-04-01T13:13:41.533Z');
+
+INSERT OR IGNORE INTO people (id, github_username, google_email, display_name, status, trust_code, personal_connection, trust_note, trust_by, registered_at, updated_at)
+VALUES ('p_xxs7llltqzd0', 'detour1999', NULL, 'Dylan Richard', 'seeded', 1, 1, 'Trusted collaborator', 'seed-cli', '2026-04-01T13:13:41.533Z', '2026-04-01T13:13:41.533Z');
